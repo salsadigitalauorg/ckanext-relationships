@@ -1,0 +1,23 @@
+{% set relationships = h.get_relationships(id) %}
+
+{% if relationships %}
+    <h3>Linkages</h3>
+    <table class="table table-striped">
+        <thead>
+            <th width="20%">Type</th>
+            <th>CKAN Dataset</th>
+        </thead>
+        {% for relationship in relationships %}
+        <tr>
+            <td>
+                {{ relationship.type }}
+            </td>
+            <td>
+                <a href="{{ h.url_for('dataset_read', id=relationship.object) }}">{{ relationship.title }}</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <h4>There are no existing linkages.</h4>
+{% endif %}

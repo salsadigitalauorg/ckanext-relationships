@@ -1,0 +1,77 @@
+{% extends 'package/edit_base.html' %}
+
+{% block primary_content_inner %}
+
+    <h2>Existing linkages</h2>
+
+    {% set existing_relationships = h.get_relationships(c.pkg_dict['id']) %}
+
+    {% if existing_relationships %}
+        <table class="table table-striped">
+            <thead>
+                <th width="20%">Type</th>
+                <th>CKAN Dataset</th>
+                <th width="15%">Action</th>
+            </thead>
+            {% for relationship in existing_relationships %}
+            <tr>
+                <td>
+                    {{ relationship.type }}
+                </td>
+                <td>
+                    <a href="{{ h.url_for('dataset_read', id=relationship.object) }}">{{ relationship.title }}</a>
+                </td>
+                <td>
+                    <a href="/dataset/{{ c.pkg_dict['name'] }}/relationships/delete/{{ relationship.type }}/{{ relationship.object }}" class="btn btn-danger">Delete linkage</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <h4>There are no existing linkages.</h4>
+    {% endif %}
+
+    <h2>Create linkage</h2>
+
+    {% set relatable_datasets = h.get_relatable_datasets(c.pkg_dict['id']) %}
+
+    {% if relatable_datasets %}
+
+        <h3>Add as parent of:</h3>
+
+        <form action="/dataset/{{ c.pkg_dict['name'] }}/relationships/create/parent" method="post">
+
+            <select name="object">
+                {% for dataset in relatable_datasets %}
+                 <option value="{{ dataset.name }}">
+                    {{ dataset.title }}
+                 </option>
+                {% endfor %}
+            </select>
+
+            <input class="btn btn-primary" type="submit" value="Add">
+
+        </form>
+
+        <hr />
+
+        <h3>Add as child of:</h3>
+
+        <form action="/dataset/{{ c.pkg_dict['name'] }}/relationships/create/child" method="post">
+
+            <select name="object">
+                {% for dataset in relatable_datasets %}
+                 <option value="{{ dataset.name }}">
+                    {{ dataset.title }}
+                 </option>
+                {% endfor %}
+            </select>
+
+            <input class="btn btn-primary" type="submit" value="Add">
+
+        </form>
+    {% else %}
+        <h4>There are no other datasets to link to.</h4>
+    {% endif %}
+
+{% endblock %}

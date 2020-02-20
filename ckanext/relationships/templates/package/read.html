@@ -1,0 +1,6 @@
+{% ckan_extends %}
+
+  {% block package_tags %}
+    {{ super() }}
+    {% snippet "package/snippets/relationship_list.html", id=pkg.id %}
+  {% endblock %}
