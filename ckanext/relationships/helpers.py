@@ -71,8 +71,8 @@ def get_lineage_notes(type, object):
                'auth_user_obj': c.userobj}
     try:
         source_package = get_action('package_show')(context, {'id': object})
-        return source_package['lineage']
+        return source_package.get('lineage', None)
     except Exception, e:
-        abort(404, _('An issue occurred'))
+        abort(404, str(e))
 
     return ''
