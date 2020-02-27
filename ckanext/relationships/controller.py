@@ -38,13 +38,14 @@ class RelationshipController(PackageController):
 
         return render('package/relationships.html')
 
-    def create_dataset_relationship(self, id, type):
+    def create_dataset_relationship(self, id):
 
         if request.method == 'POST':
             data_dict = clean_dict(unflatten(tuplize_dict(parse_params(request.POST))))
             # from pprint import pprint
             # pprint(data_dict)
             object = data_dict.get('object', None)
+            type = data_dict.get('type', None)
             if object:
                 context = {'model': model, 'session': model.Session,
                            'user': c.user, 'for_view': True,
@@ -54,8 +55,19 @@ class RelationshipController(PackageController):
                     relationship = get_action('package_relationship_create')(context, {
                         'subject': id,
                         'object': object,
-                        'type': type + '_of'
+                        'type': type
                     })
+                    from pprint import pprint
+                    pprint(type)
+                    # if the relationship type is 'has_derivation' - add the creator of the dataset as a follower of the subject dataset (id)
+                    if type == 'derives_from':
+                        # TODO: Check if the user is already following
+
+                        following = get_action('follow_dataset')(context, {
+                            'id': object
+                        })
+                        pprint(following)
+
                 except Exception, e:
                     # TODO: Deal with exception raised when adding as child_of:
                     # 'Parent instance <PackageRelationship at 0x7fd118badb10> is not bound to a Session; lazy load operation of attribute 'subject' cannot proceed'

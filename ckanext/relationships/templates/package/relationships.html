@@ -37,9 +37,18 @@
 
     {% if relatable_datasets %}
 
-        <h3>Add as parent of:</h3>
+        <form action="/dataset/{{ c.pkg_dict['name'] }}/relationships/create" method="post">
 
-        <form action="/dataset/{{ c.pkg_dict['name'] }}/relationships/create/parent" method="post">
+            <select name="type">
+                 <option value="parent_of">Parent of</option>
+                 <option value="child_of">Child of</option>
+                 <option value="depends_on">Depends on</option>
+                 <option value="dependency_of">Dependency of</option>
+                 <option value="derives_from">Derives from</option>
+                 <option value="has_derivation">Has derivation</option>
+                 <option value="links_to">Links to</option>
+                 <option value="linked_from">Linked from</option>
+            </select>
 
             <select name="object">
                 {% for dataset in relatable_datasets %}
@@ -49,25 +58,7 @@
                 {% endfor %}
             </select>
 
-            <input class="btn btn-primary" type="submit" value="Add">
-
-        </form>
-
-        <hr />
-
-        <h3>Add as child of:</h3>
-
-        <form action="/dataset/{{ c.pkg_dict['name'] }}/relationships/create/child" method="post">
-
-            <select name="object">
-                {% for dataset in relatable_datasets %}
-                 <option value="{{ dataset.name }}">
-                    {{ dataset.title }}
-                 </option>
-                {% endfor %}
-            </select>
-
-            <input class="btn btn-primary" type="submit" value="Add">
+            <input class="btn btn-primary" type="submit" value="Add linkage">
 
         </form>
     {% else %}

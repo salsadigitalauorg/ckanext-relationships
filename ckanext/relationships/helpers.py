@@ -63,3 +63,16 @@ def get_relatable_datasets(id):
                 )
 
     return relatable_datasets
+
+
+def get_lineage_notes(type, object):
+    context = {'model': model, 'session': model.Session,
+               'user': c.user, 'for_view': True,
+               'auth_user_obj': c.userobj}
+    try:
+        source_package = get_action('package_show')(context, {'id': object})
+        return source_package['lineage']
+    except Exception, e:
+        abort(404, _('An issue occurred'))
+
+    return ''

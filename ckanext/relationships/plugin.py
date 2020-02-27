@@ -22,7 +22,7 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
                     action='dataset_relationships',
                     ckan_icon='pencil-square-o'
                     )
-        map.connect('create_dataset_relationship', '/dataset/{id}/relationships/create/{type}',
+        map.connect('create_dataset_relationship', '/dataset/{id}/relationships/create',
                     controller='ckanext.relationships.controller:RelationshipController',
                     action='create_dataset_relationship'
                     )
@@ -37,4 +37,5 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
         return {
             'get_relationships': helpers.get_relationships,
             'get_relatable_datasets': helpers.get_relatable_datasets,
+            'get_lineage_notes': helpers.get_lineage_notes,
         }
