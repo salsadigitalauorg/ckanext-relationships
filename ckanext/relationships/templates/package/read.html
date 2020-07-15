@@ -3,4 +3,5 @@
   {% block package_tags %}
     {{ super() }}
     {% snippet "package/snippets/relationship_list.html", id=pkg.id %}
+    {% snippet "package/snippets/vocabularies.html", id=pkg.id %}
   {% endblock %}
