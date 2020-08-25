@@ -31,7 +31,7 @@
         <h4>There are no existing relationships.</h4>
     {% endif %}
 
-    <h2>Create linkage</h2>
+    <h2>Create relationship</h2>
 
     {% set relatable_datasets = h.get_relatable_datasets(pkg_dict['id']) %}
 
@@ -39,14 +39,14 @@
 
         <form action="/dataset/{{ pkg_dict['name'] }}/relationships/create" method="post">
 
-            <select name="type">
+            This dataset <select name="type">
                 {% for option in h.get_relationship_types() %}
                     <option value="{{ option[0] }}">{{ option[0] }}</option>
                     <option value="{{ option[1] }}">{{ option[1] }}</option>
                 {% endfor %}
             </select>
 
-            <select name="object">
+            dataset <select name="object">
                 {% for dataset in relatable_datasets %}
                  <option value="{{ dataset.name }}">
                     {{ dataset.title }}
@@ -54,7 +54,7 @@
                 {% endfor %}
             </select>
 
-            <input class="btn btn-primary" type="submit" value="Add linkage">
+            <input class="btn btn-primary" type="submit" value="Add relationship">
 
         </form>
     {% else %}
