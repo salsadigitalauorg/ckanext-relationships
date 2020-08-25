@@ -21,7 +21,7 @@ tuplize_dict = logic.tuplize_dict
 relationships = Blueprint('relationships', __name__)
 
 
-def dataset_relationships(id):
+def index(id):
     context = {'model': model, 'session': model.Session,
                'user': c.user, 'for_view': True,
                'auth_user_obj': c.userobj}
@@ -41,20 +41,16 @@ def dataset_relationships(id):
     )
 
 
-def create_dataset_relationship(id):
+def create(id):
     if request.method == 'POST':
         data_dict = clean_dict(unflatten(tuplize_dict(parse_params(request.form))))
-        # from pprint import pprint
-        # pprint(data_dict)
+
         object = data_dict.get('object', None)
         type = data_dict.get('type', None)
-        if object:
-            context = {'model': model, 'session': model.Session,
-                       'user': c.user, 'for_view': True,
-                       'auth_user_obj': c.userobj}
 
+        if object:
             try:
-                relationship = get_action('package_relationship_create')(context, {
+                relationship = get_action('package_relationship_create')({}, {
                     'subject': id,
                     'object': object,
                     'type': type
@@ -64,28 +60,20 @@ def create_dataset_relationship(id):
                 # 'Parent instance <PackageRelationship at 0x7fd118badb10> is not bound to a Session; lazy load operation of attribute 'subject' cannot proceed'
                 print(str(e))
 
-    h.redirect_to(h.url_for('relationships.dataset_relationships', id=id))
+    return h.redirect_to(h.url_for('relationships.index', id=id))
 
 
-def delete_dataset_relationship(id, type, object):
-    context = {'model': model, 'session': model.Session,
-               'user': c.user, 'for_view': True,
-               'auth_user_obj': c.userobj}
-
-    get_action('package_relationship_delete')(context, {
+def delete(id, type, object):
+    get_action('package_relationship_delete')({}, {
         'subject': id,
         'object': object,
         'type': type
     })
-    h.redirect_to(h.url_for('dataset_relationships', id=id))
+    return h.redirect_to(h.url_for('relationships.index', id=id))
 
 
-# vocabulary_services.add_url_rule(u'/vocabulary-services',
-#                                  methods=[u'GET', u'POST'], view_func=index)
-#
-relationships.add_url_rule(u'/dataset/<id>/relationships', view_func=dataset_relationships)
+relationships.add_url_rule(u'/dataset/<id>/relationships', view_func=index)
 relationships.add_url_rule(u'/dataset/<id>/relationships/create',
-                            methods=[u'GET', u'POST'],
-                           view_func=create_dataset_relationship)
-#
-# vocabulary_services.add_url_rule(u'/vocabulary-service/terms/<id>', view_func=terms)
+                           methods=[u'POST'],
+                           view_func=create)
+relationships.add_url_rule(u'/dataset/<id>/relationships/delete/<type>/<object>', view_func=delete)
