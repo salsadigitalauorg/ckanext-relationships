@@ -2,9 +2,9 @@
 
 {% block primary_content_inner %}
 
-    <h2>Existing linkages</h2>
+    <h2>Existing Relationships</h2>
 
-    {% set existing_relationships = h.get_relationships(c.pkg_dict['id']) %}
+    {% set existing_relationships = h.get_relationships(pkg_dict['id']) %}
 
     {% if existing_relationships %}
         <table class="table table-striped">
@@ -22,32 +22,28 @@
                     <a href="{{ h.url_for('dataset_read', id=relationship.object) }}">{{ relationship.title }}</a>
                 </td>
                 <td>
-                    <a href="/dataset/{{ c.pkg_dict['name'] }}/relationships/delete/{{ relationship.type }}/{{ relationship.object }}" class="btn btn-danger">Delete linkage</a>
+                    <a href="/dataset/{{ pkg_dict['name'] }}/relationships/delete/{{ relationship.type }}/{{ relationship.object }}" class="btn btn-danger">Delete linkage</a>
                 </td>
             </tr>
             {% endfor %}
         </table>
     {% else %}
-        <h4>There are no existing linkages.</h4>
+        <h4>There are no existing relationships.</h4>
     {% endif %}
 
     <h2>Create linkage</h2>
 
-    {% set relatable_datasets = h.get_relatable_datasets(c.pkg_dict['id']) %}
+    {% set relatable_datasets = h.get_relatable_datasets(pkg_dict['id']) %}
 
     {% if relatable_datasets %}
 
-        <form action="/dataset/{{ c.pkg_dict['name'] }}/relationships/create" method="post">
+        <form action="/dataset/{{ pkg_dict['name'] }}/relationships/create" method="post">
 
             <select name="type">
-                 <option value="parent_of">Parent of</option>
-                 <option value="child_of">Child of</option>
-                 <option value="depends_on">Depends on</option>
-                 <option value="dependency_of">Dependency of</option>
-                 <option value="derives_from">Derives from</option>
-                 <option value="has_derivation">Has derivation</option>
-                 <option value="links_to">Links to</option>
-                 <option value="linked_from">Linked from</option>
+                {% for option in h.get_relationship_types() %}
+                    <option value="{{ option[0] }}">{{ option[0] }}</option>
+                    <option value="{{ option[1] }}">{{ option[1] }}</option>
+                {% endfor %}
             </select>
 
             <select name="object">
