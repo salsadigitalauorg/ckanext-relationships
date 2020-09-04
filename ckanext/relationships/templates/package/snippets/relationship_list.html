@@ -1,6 +1,6 @@
 {% set relationships = h.get_relationships(id) %}
 
-<h3>Linkages</h3>
+<h3>Relationships</h3>
 {% if relationships %}
     <table class="table table-striped">
         <thead>
@@ -23,5 +23,5 @@
         {% endfor %}
     </table>
 {% else %}
-    <h4>This dataset has no existing linkages.</h4>
+    <h4>This dataset has no existing relationships.</h4>
 {% endif %}
