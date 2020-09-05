@@ -19,10 +19,14 @@
                     {{ relationship.type }}
                 </td>
                 <td>
-                    <a href="{{ h.url_for('dataset_read', id=relationship.object) }}">{{ relationship.title }}</a>
+                    <a href="{{ h.url_for('dataset.read', id=relationship.object) }}">{{ relationship.title }}</a>
                 </td>
                 <td>
-                    <a href="{{ h.url_for('relationships.delete', id=pkg_dict['name'], type=relationship.type, object=relationship.object) }}" class="btn btn-danger">Delete linkage</a>
+                    {% if relationship.object %}
+                        <a href="{{ h.url_for('relationships.delete', id=pkg_dict['name'], type=relationship.type, object=relationship.object) }}" class="btn btn-danger">Delete linkage</a>
+                    {% else %}
+                        POOS
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}

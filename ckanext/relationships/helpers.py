@@ -2,12 +2,14 @@ import ckan.lib.base as base
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.model as model
+import logging
 
 from ckan.common import _, c
 from ckan.model.package_relationship import PackageRelationship
 
 abort = base.abort
 get_action = logic.get_action
+log = logging.getLogger(__name__)
 
 
 def get_relationships(id):
@@ -15,7 +17,20 @@ def get_relationships(id):
                'user': c.user, 'for_view': True,
                'auth_user_obj': c.userobj}
 
+    # @TODO: Moved this out of try except to find real exception
     relationships = get_action('package_relationships_list')(context, {'id': id})
+
+    try:
+        log.debug('>>>>>>> I WAS HERE <<<<<<<<<<')
+        relationships = get_action('package_relationships_list')(context, {'id': id})
+        log.debug('>>>>>>> I MADE IT INTO HERE <<<<<<<<<<')
+        log.debug('>>>>>>> I MADE IT INTO HERE <<<<<<<<<<')
+        log.debug('>>>>>>> I MADE IT INTO HERE <<<<<<<<<<')
+        log.debug('>>>>>>> I MADE IT INTO HERE <<<<<<<<<<')
+    except Exception as e:
+        log.debug(str(e))
+        # whatever
+        # @TODO: why does it not throw an exception here?
 
     # from pprint import pprint
     # pprint(relationships)
@@ -24,9 +39,14 @@ def get_relationships(id):
         try:
 
             for relationship in relationships:
-                package = get_action('package_show')(context, {'id': relationship['object']})
-                if package:
-                    relationship['title'] = package['title']
+                log.debug('##### A relationshiP: #####')
+                log.debug('##### A relationshiP: #####')
+                log.debug('##### A relationshiP: #####')
+                log.debug(relationship)
+                # @TODO: Re-enable and add logic for NO relationship['object']
+                # package = get_action('package_show')(context, {'id': relationship['object']})
+                # if package:
+                #     relationship['title'] = package['title']
         except Exception as e:
             print(str(e))
 

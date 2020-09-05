@@ -42,23 +42,35 @@ def index(id):
 
 
 def create(id):
+    context = {'model': model, 'session': model.Session,
+               'user': c.user, 'for_view': True,
+               'auth_user_obj': c.userobj}
+
     if request.method == 'POST':
         data_dict = clean_dict(unflatten(tuplize_dict(parse_params(request.form))))
 
         object = data_dict.get('object', None)
         type = data_dict.get('type', None)
 
-        if object:
-            try:
-                relationship = get_action('package_relationship_create')({}, {
-                    'subject': id,
-                    'object': object,
-                    'type': type
-                })
-            except Exception as e:
-                # TODO: Deal with exception raised when adding as child_of:
-                # 'Parent instance <PackageRelationship at 0x7fd118badb10> is not bound to a Session; lazy load operation of attribute 'subject' cannot proceed'
-                print(str(e))
+        relationship = get_action('package_relationship_create')(context, {
+            'subject': id,
+            'object': None,
+            'type': type,
+            'comment': object,
+        })
+
+        # if object:
+        #     try:
+        #         relationship = get_action('package_relationship_create')({}, {
+        #             'subject': id,
+        #             'object': None,
+        #             'type': type,
+        #             'comment': object,
+        #         })
+        #     except Exception as e:
+        #         # TODO: Deal with exception raised when adding as child_of:
+        #         # 'Parent instance <PackageRelationship at 0x7fd118badb10> is not bound to a Session; lazy load operation of attribute 'subject' cannot proceed'
+        #         print(str(e))
 
     return h.redirect_to(h.url_for('relationships.index', id=id))
 
