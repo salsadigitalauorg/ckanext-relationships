@@ -61,5 +61,6 @@ def package_relationship_create(original_action, context, data_dict):
         log.debug('... REVERTING to core CKAN package_relationship_create ...')
         log.debug('... REVERTING to core CKAN package_relationship_create ...')
         log.debug('... REVERTING to core CKAN package_relationship_create ...')
+        original_action(context, data_dict)
 
     return True

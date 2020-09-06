@@ -19,7 +19,12 @@
                     {{ relationship.type }}
                 </td>
                 <td>
-                    <a href="{{ h.url_for('dataset.read', id=relationship.object) }}">{{ relationship.title }}</a>
+                    {% if relationship.object %}
+                        {{ relationship }}
+                        <a href="{{ h.url_for('dataset.read', id=relationship.object) }}">{{ relationship.title }}</a>
+                    {% else %}
+                        {{ relationship.comment }}
+                    {% endif %}
                 </td>
                 <td>
                     {% if relationship.object %}

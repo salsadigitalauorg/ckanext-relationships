@@ -54,7 +54,7 @@ def create(id):
 
         relationship = get_action('package_relationship_create')(context, {
             'subject': id,
-            'object': None,
+            'object': object,
             'type': type,
             'comment': object,
         })

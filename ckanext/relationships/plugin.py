@@ -59,7 +59,7 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
     def get_actions(self):
         return {
             'package_relationship_create': actions_create.package_relationship_create,
-            # 'package_relationships_list': actions_get.package_relationships_list,
+            'package_relationships_list': actions_get.package_relationships_list,
         }
 
     # IAuthFunctions
@@ -67,5 +67,5 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
     def get_auth_functions(self):
         return {
             'package_relationship_create': auth_create.package_relationship_create,
-            # 'package_relationships_list': auth_get.package_relationships_list,
+            'package_relationships_list': auth_get.package_relationships_list,
         }
