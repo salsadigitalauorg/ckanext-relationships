@@ -32,21 +32,18 @@ def get_relationships(id):
         # whatever
         # @TODO: why does it not throw an exception here?
 
-    # from pprint import pprint
-    # pprint(relationships)
-
     if relationships:
         try:
-
             for relationship in relationships:
-                log.debug('##### A relationshiP: #####')
-                log.debug('##### A relationshiP: #####')
-                log.debug('##### A relationshiP: #####')
-                log.debug(relationship)
-                # @TODO: Re-enable and add logic for NO relationship['object']
-                # package = get_action('package_show')(context, {'id': relationship['object']})
-                # if package:
-                #     relationship['title'] = package['title']
+                # log.debug(relationship)
+                if relationship['object']:
+                    # QDES: handle standard CKAN dataset to dataset relationships
+                    package = get_action('package_show')(context, {'id': relationship['object']})
+                    if package:
+                        relationship['title'] = package['title']
+                else:
+                    # QDES: handle CKAN dataset to EXTERNAL URI relationships
+                    relationship['title'] = relationship['comment']
         except Exception as e:
             print(str(e))
 
@@ -141,3 +138,13 @@ def get_lineage_notes(type, object):
 def get_relationship_types():
     types = PackageRelationship.types
     return types
+
+
+def quote_uri(uri):
+    from urllib.parse import quote
+    return quote(uri, safe='')
+
+
+def unquote_uri(uri):
+    from urllib.parse import unquote
+    return unquote(uri)

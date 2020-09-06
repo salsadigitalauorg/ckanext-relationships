@@ -20,17 +20,19 @@
                 </td>
                 <td>
                     {% if relationship.object %}
-                        {{ relationship }}
+                        {# Standard CKAN dataset to dataset relationships #}
                         <a href="{{ h.url_for('dataset.read', id=relationship.object) }}">{{ relationship.title }}</a>
                     {% else %}
-                        {{ relationship.comment }}
+                        {# Non-standard CKAN dataset to external URI relationships #}
+                        <a href="{{ relationship.comment }}" target="_blank">{{ relationship.comment }}</a>
                     {% endif %}
                 </td>
                 <td>
                     {% if relationship.object %}
-                        <a href="{{ h.url_for('relationships.delete', id=pkg_dict['name'], type=relationship.type, object=relationship.object) }}" class="btn btn-danger">Delete linkage</a>
+                        <a href="{{ h.url_for('relationships.delete', id=pkg_dict['name'], type=relationship.type, rel_by='object', reference=relationship.object) }}" class="btn btn-danger">Delete</a>
                     {% else %}
-                        POOS
+                        {% set uri = h.quote_uri(relationship.comment) %}
+                        <a href="{{ h.url_for('relationships.delete', id=pkg_dict['name'], type=relationship.type, rel_by='uri', reference=uri) }}" class="btn btn-danger">Delete</a>
                     {% endif %}
                 </td>
             </tr>
@@ -41,6 +43,8 @@
     {% endif %}
 
     <h2>Create relationship</h2>
+
+    <h3>CKAN dataset to dataset relationship</h3>
 
     {% set relatable_datasets = h.get_relatable_datasets(pkg_dict['id']) %}
 
@@ -63,11 +67,28 @@
                 {% endfor %}
             </select>
 
-            <input class="btn btn-primary" type="submit" value="Add relationship">
+            <input class="btn btn-primary" type="submit" value="Add CKAN relationship">
 
         </form>
     {% else %}
         <h4>There are no other datasets to link to.</h4>
     {% endif %}
+
+    <h3>CKAN dataset to external URI relationship</h3>
+
+    <form action="/dataset/{{ pkg_dict['name'] }}/relationships/create" method="post">
+
+        This dataset <select name="type">
+            {% for option in h.get_relationship_types() %}
+                <option value="{{ option[0] }}">{{ option[0] }}</option>
+                <option value="{{ option[1] }}">{{ option[1] }}</option>
+            {% endfor %}
+        </select>
+
+        dataset <input type="text" name="uri" />
+
+        <input class="btn btn-primary" type="submit" value="Add URI relationship">
+
+    </form>
 
 {% endblock %}

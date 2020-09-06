@@ -8,6 +8,7 @@ from ckanext.relationships import blueprint, constants, helpers
 from ckanext.relationships.logic.auth import create as auth_create
 from ckanext.relationships.logic.auth import get as auth_get
 from ckanext.relationships.logic.action import create as actions_create
+from ckanext.relationships.logic.action import delete as actions_delete
 from ckanext.relationships.logic.action import get as actions_get
 
 log = logging.getLogger(__name__)
@@ -33,6 +34,7 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
             'get_relatable_datasets': helpers.get_relatable_datasets,
             'get_lineage_notes': helpers.get_lineage_notes,
             'get_relationship_types': helpers.get_relationship_types,
+            'quote_uri': helpers.quote_uri,
         }
 
     # IBlueprint
@@ -60,6 +62,7 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
         return {
             'package_relationship_create': actions_create.package_relationship_create,
             'package_relationships_list': actions_get.package_relationships_list,
+            'package_relationship_delete_by_uri': actions_delete.package_relationship_delete_by_uri,
         }
 
     # IAuthFunctions

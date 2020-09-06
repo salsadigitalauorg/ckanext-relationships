@@ -9,17 +9,10 @@ log = logging.getLogger(__name__)
 @auth_allow_anonymous_access
 @toolkit.chained_action
 def package_relationship_create(original_action, context, data_dict):
-    # toolkit.check_access('site_read', context)
     toolkit.check_access('package_relationship_create', context, data_dict)
 
-    # @TODO: check if data_dict -> object is None
+    # Check if data_dict -> object is None
     # if so, we try to add a relationship without object-id
-    log.debug('#### data_dict ####')
-    log.debug('#### data_dict ####')
-    log.debug(data_dict)
-    log.debug('#### data_dict ####')
-    log.debug('#### data_dict ####')
-
     object_id = data_dict.get('object', None)
 
     if not object_id:
@@ -57,10 +50,8 @@ def package_relationship_create(original_action, context, data_dict):
 
     # else We revert to the parent action
     else:
-        log.debug('... REVERTING to core CKAN package_relationship_create ...')
-        log.debug('... REVERTING to core CKAN package_relationship_create ...')
-        log.debug('... REVERTING to core CKAN package_relationship_create ...')
-        log.debug('... REVERTING to core CKAN package_relationship_create ...')
+        log.info('*** Reverting to core CKAN package_relationship_create for:')
+        log.info(data_dict)
         original_action(context, data_dict)
 
     return True
