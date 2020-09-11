@@ -1,6 +1,6 @@
 import ckan.plugins.toolkit as toolkit
 import logging
-
+import ckan.lib.dictization as d
 from ckan.model import meta, PackageRelationship
 
 log = logging.getLogger(__name__)
@@ -33,3 +33,23 @@ def package_relationship_delete_by_uri(context, data_dict):
             log.error(str(e))
 
     return True
+
+
+def package_relationship_delete_all(context, data_dict):
+    dataset_id = data_dict.get('id', None)
+    if dataset_id:
+        try:
+            model = context['model']
+            query = model.Session.query(PackageRelationship)
+            query = query.filter(PackageRelationship.subject_package_id == dataset_id)
+            relationships = query.all()
+
+            for relationship in relationships:
+                log.debug('Deleting relationship : {}'.format(d.table_dictize(relationship, context)))
+                relationship.purge()
+
+            model.Session.commit()
+
+        except Exception as e:
+            log.error('*** ERROR: package_relationship_delete_all')
+            log.error(str(e))
