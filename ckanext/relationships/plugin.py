@@ -85,6 +85,8 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
             'package_relationship_delete_by_uri': actions_delete.package_relationship_delete_by_uri,
             'package_relationship_delete_all': actions_delete.package_relationship_delete_all,
             'update_related_resources': actions_update.update_related_resources,
+            'subject_package_relationship_objects': actions_get.subject_package_relationship_objects,
+            'get_package_relationship_by_uri': actions_get.package_relationship_by_uri,
         }
 
     # IAuthFunctions
@@ -114,25 +116,27 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
         Extensions will receive the validated data dict after the dataset
         has been updated.
         '''
-        # TODO: Instead of deleting all relationships, reconcile old relationships with new and delete only the missing
-        toolkit.get_action('package_relationship_delete_all')(context, pkg_dict)
+        helpers.reconcile_package_relationships(context, pkg_dict['id'], pkg_dict.get('related_resources', None))
         self._create_series_or_collection_relationships(context, pkg_dict)
         self._create_related_datasets_relationships(context, pkg_dict)
         self._create_related_resource_relationships(context, pkg_dict)
         self._update_related_resources(context, pkg_dict)
 
+    # @TODO: Should this be moved into the ckanext-qdes-schema ?
     def _create_series_or_collection_relationships(self, context, pkg_dict):
         series_or_collection = pkg_dict.get('series_or_collection', [])
         datasets = toolkit.get_converter('json_or_string')(series_or_collection)
         relationship_type = 'isPartOf'
         self._add_related_resources(pkg_dict, datasets, relationship_type)
 
+    # @TODO: Should this be moved into the ckanext-qdes-schema ?
     def _create_related_datasets_relationships(self, context, pkg_dict):
         related_datasets = pkg_dict.get('related_datasets', [])
         datasets = toolkit.get_converter('json_or_string')(related_datasets)
         relationship_type = 'unspecified relationship'
         self._add_related_resources(pkg_dict, datasets, relationship_type)
 
+    # @TODO: Should this be moved into the ckanext-qdes-schema ?
     def _add_related_resources(self, pkg_dict, datasets, relationship_type):
         if not datasets or not isinstance(datasets, list):
             return
@@ -149,6 +153,7 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
 
         pkg_dict['related_resources'] = related_resources
 
+    # @TODO: Should this be moved into the ckanext-qdes-schema ?
     def _create_related_resource_relationships(self, context, pkg_dict):
         related_resources = pkg_dict.get('related_resources', {})
         related_resources = toolkit.get_converter('json_or_string')(related_resources)
@@ -159,6 +164,7 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
 
             self._create_relationships(context, dataset_id, resources, relationships)
 
+    # @TODO: Should this be moved into the ckanext-qdes-schema ?
     def _create_relationships(self, context, dataset_id, datasets, relationships):
         try:
             for index, dataset in enumerate(datasets):

@@ -7,8 +7,6 @@ log = logging.getLogger(__name__)
 
 #@toolkit.chained_auth_function
 def package_relationship_create(context, data_dict):
-    log.debug('>>>> I AM HERE <<<<')
-
     # Copied from CKAN core logic/auth/create.py
     user = context['user']
 
