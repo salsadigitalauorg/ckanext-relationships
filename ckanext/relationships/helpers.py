@@ -160,3 +160,7 @@ def quote_uri(uri):
 def unquote_uri(uri):
     from urllib.parse import unquote
     return unquote(uri)
+
+
+def get_subject_package_relationship_objects(id):
+    return toolkit.get_action('subject_package_relationship_objects')({}, {'id': id})

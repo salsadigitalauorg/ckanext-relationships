@@ -35,6 +35,7 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
             'get_lineage_notes': helpers.get_lineage_notes,
             'get_relationship_types': helpers.get_relationship_types,
             'quote_uri': helpers.quote_uri,
+            'get_subject_package_relationship_objects': helpers.get_subject_package_relationship_objects,
         }
 
     # IBlueprint
