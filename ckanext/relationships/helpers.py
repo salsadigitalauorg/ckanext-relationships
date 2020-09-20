@@ -215,3 +215,7 @@ def reconcile_package_relationships(context, pkg_id, related_resources):
                 # Delete the existing relationship from `package_relationships` as it no longer exists in the dataset
                 relationship.purge()
                 model.meta.Session.commit()
+
+
+def show_relationships_on_dataset_detail():
+    return toolkit.asbool(toolkit.config.get('ckanext.relationships.show_relationships_on_dataset_detail', True))
