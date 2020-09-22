@@ -36,6 +36,7 @@ class RelationshipsPlugin(plugins.SingletonPlugin):
             'get_relationship_types': helpers.get_relationship_types,
             'quote_uri': helpers.quote_uri,
             'get_subject_package_relationship_objects': helpers.get_subject_package_relationship_objects,
+            'show_relationships_on_dataset_detail': helpers.show_relationships_on_dataset_detail,
         }
 
     # IBlueprint

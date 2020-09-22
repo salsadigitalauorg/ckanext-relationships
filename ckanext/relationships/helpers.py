@@ -164,3 +164,7 @@ def unquote_uri(uri):
 
 def get_subject_package_relationship_objects(id):
     return toolkit.get_action('subject_package_relationship_objects')({}, {'id': id})
+
+
+def show_relationships_on_dataset_detail():
+    return toolkit.asbool(toolkit.config.get('ckanext.relationships.show_relationships_on_dataset_detail', True))
