@@ -8,7 +8,9 @@ import logging
 from ckan.common import _, c, request
 from ckan.lib.navl.dictization_functions import unflatten
 from ckanext.relationships import helpers
+from ckanext.qdes_schema import helpers as qdes_schema_helpers
 from flask import Blueprint
+from pprint import pformat
 
 abort = base.abort
 clean_dict = logic.clean_dict
@@ -91,9 +93,27 @@ def delete(id, type, rel_by, reference):
 
     return h.redirect_to(h.url_for('relationships.index', id=id))
 
+def related_datasets(id):
+    try:
+        related = []
+        all_relationships = qdes_schema_helpers.get_all_relationships(id)
+
+        for relationship in all_relationships:
+            if relationship.get('type') not in ['isPartOf', 'hasPart']:
+                related.append(relationship)
+
+        extra_vars = {}
+        extra_vars['pkg_dict'] = get_action('package_show')({}, {'id': id})
+        extra_vars['related'] = related
+
+        return render('package/related_datasets.html', extra_vars=extra_vars)
+    except (NotFound, NotAuthorized):
+        abort(404, _('Related dataset not found'))
+
 
 relationships.add_url_rule(u'/dataset/<id>/relationships', view_func=index)
 relationships.add_url_rule(u'/dataset/<id>/relationships/create',
                            methods=[u'POST'],
                            view_func=create)
 relationships.add_url_rule(u'/dataset/<id>/relationships/delete/<type>/<rel_by>/<reference>', view_func=delete)
+relationships.add_url_rule(u'/dataset/<id>/related-datasets', view_func=related_datasets)
