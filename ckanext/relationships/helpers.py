@@ -135,7 +135,7 @@ def get_lineage_notes(type, object):
 
 
 def get_relationship_types(field=None):
-    types = PackageRelationship.types
+    types = PackageRelationship.get_all_types()
     return types
 
 
