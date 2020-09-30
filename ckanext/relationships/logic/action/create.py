@@ -12,15 +12,13 @@ log = logging.getLogger(__name__)
 @toolkit.chained_action
 def package_relationship_create(original_action, context, data_dict):
     toolkit.check_access('package_relationship_create', context, data_dict)
-
+    model = context['model']
     object_id = data_dict.get('object', None)
+    subject = data_dict.get('subject', None)
+    type = data_dict.get('type', None)
 
     # If data_dict -> object_id is None, we try to add a package_relationship record without `object_package_id`
     if not object_id:
-        model = context['model']
-
-        subject = data_dict.get('subject', None)
-        type = data_dict.get('type', None)
         comment = data_dict.get('comment', u'') or None  # Just in case it is an empty string
 
         pkg1 = model.Package.get(subject)
@@ -56,6 +54,24 @@ def package_relationship_create(original_action, context, data_dict):
     else:
         log.info('*** Reverting to core CKAN package_relationship_create for:')
         log.info(data_dict)
-        original_action(context, data_dict)
+        create_relationship = True
+        if type == 'replaces':
+            # This is to prevent circular relationships to happen
+            # Creating a relationship for Jim1 to replace Jim2
+            # Need to check if there is a relationship where Jim2 replaces Jim1
+            # Jim1.id = subject and Jim2.id = object
+            # Load any relationship where Jim2 is the subject Jim1 is object
+            #
+            query = model.Session.query(PackageRelationship)
+            query = query.filter(PackageRelationship.subject_package_id == object_id)
+            query = query.filter(PackageRelationship.object_package_id == subject)
+            query = query.filter(PackageRelationship.type == type)
+            relationship = query.first()
+            if relationship:
+                log.debug('Circular relationship already exists: {}'.format(relationship))
+                create_relationship = False
+
+        if create_relationship:
+            original_action(context, data_dict)
 
     return True

@@ -163,7 +163,40 @@ def unquote_uri(uri):
 
 
 def get_subject_package_relationship_objects(id):
-    return toolkit.get_action('subject_package_relationship_objects')({}, {'id': id})
+    try:
+        relationships = get_action('subject_package_relationship_objects')({}, {'id': id})
+    except Exception as e:
+        log.error(str(e))
+    relationship_dicts = []
+    if relationships:
+        try:
+            for relationship in relationships:
+                if not relationship.object_package_id:
+                    relationship_dicts.append(
+                        {'subject': id,
+                         'type': relationship.type,
+                         'object': None,
+                         'comment': relationship.comment}
+                    )
+                else:
+                    # Normal CKAN package to package relationship
+                    relationship_dicts.append(relationship.as_dict())
+
+            for relationship_dict in relationship_dicts:
+                log.debug(relationship_dict)
+                if relationship_dict['object']:
+                    # QDES: handle standard CKAN dataset to dataset relationships
+                    package = get_action('package_show')({}, {'id': relationship_dict['object']})
+                    if package:
+                        relationship_dict['title'] = package['title']
+                else:
+                    # QDES: handle CKAN dataset to EXTERNAL URI relationships
+                    relationship_dict['title'] = relationship_dict['comment']
+                log.debug(relationship_dict)
+        except Exception as e:
+            print(str(e))
+
+    return relationship_dicts
 
 
 def show_relationships_on_dataset_detail():
