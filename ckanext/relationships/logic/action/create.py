@@ -54,7 +54,7 @@ def package_relationship_create(original_action, context, data_dict):
     # else We revert to the parent/CKAN core `package_relationship_create` action
     else:
         log.info('*** Reverting to core CKAN package_relationship_create for:')
-        log.info(data_dict)       
+        log.info(data_dict)
         try:
             # qdes_validate_dataset_relationships(current_dataset_id, relationship_dataset_id, relationship_type, context):
             # Validates the dataset relationship to prevent circular reference
