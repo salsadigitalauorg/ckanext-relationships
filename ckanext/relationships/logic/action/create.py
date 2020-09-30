@@ -4,6 +4,7 @@ import logging
 from ckan.logic import auth_allow_anonymous_access, NotFound
 from ckan.model import meta
 from ckan.model.package_relationship import PackageRelationship
+from ckanext.qdes_schema import validators
 
 log = logging.getLogger(__name__)
 
@@ -53,25 +54,13 @@ def package_relationship_create(original_action, context, data_dict):
     # else We revert to the parent/CKAN core `package_relationship_create` action
     else:
         log.info('*** Reverting to core CKAN package_relationship_create for:')
-        log.info(data_dict)
-        create_relationship = True
-        if type == 'replaces':
-            # This is to prevent circular relationships to happen
-            # Creating a relationship for Jim1 to replace Jim2
-            # Need to check if there is a relationship where Jim2 replaces Jim1
-            # Jim1.id = subject and Jim2.id = object
-            # Load any relationship where Jim2 is the subject Jim1 is object
-            #
-            query = model.Session.query(PackageRelationship)
-            query = query.filter(PackageRelationship.subject_package_id == object_id)
-            query = query.filter(PackageRelationship.object_package_id == subject)
-            query = query.filter(PackageRelationship.type == type)
-            relationship = query.first()
-            if relationship:
-                log.debug('Circular relationship already exists: {}'.format(relationship))
-                create_relationship = False
-
-        if create_relationship:
+        log.info(data_dict)       
+        try:
+            # qdes_validate_dataset_relationships(current_dataset_id, relationship_dataset_id, relationship_type, context):
+            # Validates the dataset relationship to prevent circular reference
+            validators.qdes_validate_dataset_relationships(subject, object_id, type, context)
             original_action(context, data_dict)
+        except toolkit.Invalid as ex:
+            log.warning(ex)
 
     return True
