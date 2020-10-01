@@ -170,7 +170,6 @@ def get_subject_package_relationship_objects(id):
                     relationship_dicts.append(relationship.as_dict())
 
             for relationship_dict in relationship_dicts:
-                log.debug(relationship_dict)
                 if relationship_dict['object']:
                     # QDES: handle standard CKAN dataset to dataset relationships
                     package = get_action('package_show')({}, {'id': relationship_dict['object']})
@@ -179,9 +178,8 @@ def get_subject_package_relationship_objects(id):
                 else:
                     # QDES: handle CKAN dataset to EXTERNAL URI relationships
                     relationship_dict['title'] = relationship_dict['comment']
-                log.debug(relationship_dict)
         except Exception as e:
-            print(str(e))
+            log.error(str(e))
 
     return relationship_dicts
 
