@@ -139,19 +139,6 @@ def get_relationship_types(field=None):
     return types
 
 
-def get_relationship_types_as_flat_list():
-    relationship_types = []
-
-    relationship_type_pairs = get_relationship_types()
-
-    for pair in relationship_type_pairs:
-        for value in pair:
-            if value:
-                relationship_types.append(value)
-
-    return relationship_types
-
-
 def quote_uri(uri):
     from urllib.parse import quote
     return quote(uri, safe='')
