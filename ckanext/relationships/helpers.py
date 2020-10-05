@@ -135,21 +135,8 @@ def get_lineage_notes(type, object):
 
 
 def get_relationship_types(field=None):
-    types = PackageRelationship.types
+    types = PackageRelationship.get_all_types()
     return types
-
-
-def get_relationship_types_as_flat_list():
-    relationship_types = []
-
-    relationship_type_pairs = get_relationship_types()
-
-    for pair in relationship_type_pairs:
-        for value in pair:
-            if value:
-                relationship_types.append(value)
-
-    return relationship_types
 
 
 def quote_uri(uri):
@@ -163,7 +150,38 @@ def unquote_uri(uri):
 
 
 def get_subject_package_relationship_objects(id):
-    return toolkit.get_action('subject_package_relationship_objects')({}, {'id': id})
+    try:
+        relationships = get_action('subject_package_relationship_objects')({}, {'id': id})
+    except Exception as e:
+        log.error(str(e))
+    relationship_dicts = []
+    if relationships:
+        try:
+            for relationship in relationships:
+                if not relationship.object_package_id:
+                    relationship_dicts.append(
+                        {'subject': id,
+                         'type': relationship.type,
+                         'object': None,
+                         'comment': relationship.comment}
+                    )
+                else:
+                    # Normal CKAN package to package relationship
+                    relationship_dicts.append(relationship.as_dict())
+
+            for relationship_dict in relationship_dicts:
+                if relationship_dict['object']:
+                    # QDES: handle standard CKAN dataset to dataset relationships
+                    package = get_action('package_show')({}, {'id': relationship_dict['object']})
+                    if package:
+                        relationship_dict['title'] = package['title']
+                else:
+                    # QDES: handle CKAN dataset to EXTERNAL URI relationships
+                    relationship_dict['title'] = relationship_dict['comment']
+        except Exception as e:
+            log.error(str(e))
+
+    return relationship_dicts
 
 
 def show_relationships_on_dataset_detail():

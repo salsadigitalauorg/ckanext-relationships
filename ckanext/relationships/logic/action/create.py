@@ -4,6 +4,7 @@ import logging
 from ckan.logic import auth_allow_anonymous_access, NotFound
 from ckan.model import meta
 from ckan.model.package_relationship import PackageRelationship
+from ckanext.qdes_schema import validators
 
 log = logging.getLogger(__name__)
 
@@ -12,15 +13,13 @@ log = logging.getLogger(__name__)
 @toolkit.chained_action
 def package_relationship_create(original_action, context, data_dict):
     toolkit.check_access('package_relationship_create', context, data_dict)
-
+    model = context['model']
     object_id = data_dict.get('object', None)
+    subject = data_dict.get('subject', None)
+    type = data_dict.get('type', None)
 
     # If data_dict -> object_id is None, we try to add a package_relationship record without `object_package_id`
     if not object_id:
-        model = context['model']
-
-        subject = data_dict.get('subject', None)
-        type = data_dict.get('type', None)
         comment = data_dict.get('comment', u'') or None  # Just in case it is an empty string
 
         pkg1 = model.Package.get(subject)
@@ -56,6 +55,12 @@ def package_relationship_create(original_action, context, data_dict):
     else:
         log.info('*** Reverting to core CKAN package_relationship_create for:')
         log.info(data_dict)
-        original_action(context, data_dict)
+        try:
+            # qdes_validate_dataset_relationships(current_dataset_id, relationship_dataset_id, relationship_type, context):
+            # Validates the dataset relationship to prevent circular reference
+            validators.qdes_validate_dataset_relationships(subject, object_id, type, context)
+            original_action(context, data_dict)
+        except toolkit.Invalid as ex:
+            log.warning(ex)
 
     return True
