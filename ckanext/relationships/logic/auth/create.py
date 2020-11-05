@@ -2,6 +2,8 @@ import ckan.authz as authz
 import ckan.plugins.toolkit as toolkit
 import logging
 
+from ckan.common import _
+
 log = logging.getLogger(__name__)
 
 
