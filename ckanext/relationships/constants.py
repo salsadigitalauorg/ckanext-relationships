@@ -8,4 +8,12 @@ RELATIONSHIP_TYPES = [
     (u'replaces', u'isReplacedBy'),
     (u'references', u'isReferencedBy'),
     (u'requires', u'isRequiredBy'),
+    (u'wasDerivedFrom', ''),
+    (u'wasInfluencedBy', ''),
+    (u'wasQuotedFrom', ''),
+    (u'wasRevisionOf', ''),
+    (u'hadPrimarySource', ''),
+    (u'alternateOf', ''),
+    (u'specialisationOf', ''),
+    (u'conformsTo', ''),
 ]
