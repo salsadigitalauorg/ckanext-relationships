@@ -7,7 +7,7 @@ from ckan.common import _, config
 log = logging.getLogger(__name__)
 
 
-#@toolkit.chained_auth_function
+# @toolkit.chained_auth_function
 def package_relationship_create(context, data_dict):
     # Roles allowed to create package relationships regardless
     # of their organisation capacity for the object package
@@ -39,15 +39,16 @@ def package_relationship_create(context, data_dict):
     # to the subject package that they were updating (i.e. the package they
     # DO have `package_update` permission for.
     #
-    if roles_allowed \
-            and authz.auth_is_loggedin_user:
-        context_package = context.get('package')
-        if data_dict['subject'] == context_package.id:
-            for role in roles_allowed.split():
-                # I.E. If the user has admin/editor permission for the subject package
-                # ignore further auth checks
-                if authz.has_user_permission_for_group_or_org(context_package.owner_org, user_name, role):
-                    context['ignore_auth'] = True
+    if roles_allowed and authz.auth_is_loggedin_user:
+        # On new datasets the context.get('package') has not been set yet, so need to use package_show for the subject
+        # data_dict['subject'] is always the ID of the package being created/updated
+        context_package = toolkit.get_action('package_show')(context, {"id": data_dict['subject']})
+        for role in roles_allowed.split():
+            # I.E. If the user has admin/editor permission for the subject package
+            # ignore further auth checks
+            if authz.has_user_permission_for_group_or_org(context_package.get('owner_org'), user_name, role):
+                context['ignore_auth'] = True
+                break
 
     #
     # @WORKAROUND: Number two - commented out, but left for context
