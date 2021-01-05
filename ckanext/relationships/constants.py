@@ -15,5 +15,5 @@ RELATIONSHIP_TYPES = [
     (u'hadPrimarySource', u'wasPrimarySourceOf'),
     (u'alternateOf', u'alternateOf'),
     (u'specialisationOf', u'generalizationOf'),
-    (u'conformsTo', u''),
+    (u'conformsTo', u'conformsTo'),
 ]
