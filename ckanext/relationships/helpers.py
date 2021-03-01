@@ -174,7 +174,8 @@ def get_subject_package_relationship_objects(id):
                     # QDES: handle standard CKAN dataset to dataset relationships
                     package = get_action('package_show')({}, {'id': relationship_dict['object']})
                     if package:
-                        relationship_dict['title'] = package['title']
+                        deleted = ' [Deleted]' if package.get('state') == 'deleted' else ''
+                        relationship_dict['title'] = package['title'] + deleted
                 else:
                     # QDES: handle CKAN dataset to EXTERNAL URI relationships
                     relationship_dict['title'] = relationship_dict['comment']
