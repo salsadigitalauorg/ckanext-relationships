@@ -12,6 +12,7 @@ from pprint import pprint
 abort = base.abort
 get_action = logic.get_action
 log = logging.getLogger(__name__)
+h = toolkit.h
 
 
 def get_relationships(id, context=None):
@@ -172,10 +173,7 @@ def get_subject_package_relationship_objects(id):
             for relationship_dict in relationship_dicts:
                 if relationship_dict['object']:
                     # QDES: handle standard CKAN dataset to dataset relationships
-                    package = get_action('package_show')({}, {'id': relationship_dict['object']})
-                    if package:
-                        deleted = ' [Deleted]' if package.get('state') == 'deleted' else ''
-                        relationship_dict['title'] = package['title'] + deleted
+                    relationship_dict['title'] = h.get_pkg_title(relationship_dict['object'])
                 else:
                     # QDES: handle CKAN dataset to EXTERNAL URI relationships
                     relationship_dict['title'] = relationship_dict['comment']
