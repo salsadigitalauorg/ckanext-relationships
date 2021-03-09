@@ -16,7 +16,7 @@ def package_relationship_create(original_action, context, data_dict):
     model = context['model']
     object_id = data_dict.get('object', None)
     subject = data_dict.get('subject', None)
-    type = data_dict.get('type', None)
+    relationship_type = data_dict.get('type', None)
 
     # If data_dict -> object_id is None, we try to add a package_relationship record without `object_package_id`
     if not object_id:
@@ -33,14 +33,14 @@ def package_relationship_create(original_action, context, data_dict):
             existing_relationship = toolkit.get_action('get_package_relationship_by_uri')(context, {
                 'id': subject,
                 'uri': comment,
-                'type': type,
+                'type': relationship_type,
             })
 
             if not existing_relationship:
                 relationship = PackageRelationship(
                     subject=pkg1,
                     object=None,
-                    type=type,
+                    type=relationship_type,
                     comment=comment)
 
                 meta.Session.add(relationship)
@@ -56,9 +56,9 @@ def package_relationship_create(original_action, context, data_dict):
         log.info('*** Reverting to core CKAN package_relationship_create for:')
         log.info(data_dict)
         try:
-            # qdes_validate_dataset_relationships(current_dataset_id, relationship_dataset_id, relationship_type, context):
+            # qdes_validate_circular_replaces_relationships(current_dataset_id, relationship_dataset_id, relationship_type, context):
             # Validates the dataset relationship to prevent circular reference
-            validators.qdes_validate_dataset_relationships(subject, object_id, type, context)
+            validators.qdes_validate_circular_replaces_relationships(subject, object_id, relationship_type, context)
             original_action(context, data_dict)
         except toolkit.Invalid as ex:
             log.warning(ex)
