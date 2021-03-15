@@ -172,7 +172,9 @@ def get_subject_package_relationship_objects(id):
             for relationship_dict in relationship_dicts:
                 if relationship_dict['object']:
                     # QDES: handle standard CKAN dataset to dataset relationships
-                    package = get_action('package_show')({}, {'id': relationship_dict['object']})
+                    site_user = get_action(u'get_site_user')({u'ignore_auth': True}, {})
+                    context = {u'user': site_user[u'name']}
+                    package = get_action('package_show')(context, {'id': relationship_dict['object']})
                     if package:
                         deleted = ' [Deleted]' if package.get('state') == 'deleted' else ''
                         relationship_dict['title'] = package['title'] + deleted
