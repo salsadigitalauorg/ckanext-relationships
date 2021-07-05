@@ -2,31 +2,47 @@ import ckan.lib.base as base
 import ckan.lib.search as search
 import ckan.logic as logic
 import ckan.model as model
+import ckan.plugins.toolkit as toolkit
+import logging
 
-from ckan.common import _, c
+from ckan.common import _, c, g
 from ckan.model.package_relationship import PackageRelationship
+from pprint import pprint
 
 abort = base.abort
 get_action = logic.get_action
+log = logging.getLogger(__name__)
 
 
-def get_relationships(id):
-    context = {'model': model, 'session': model.Session,
-               'user': c.user, 'for_view': True,
-               'auth_user_obj': c.userobj}
+def get_relationships(id, context=None):
+    # This appears to be needed for the click command...
+    # ckan search-index rebuild
+    # ...to work
+    if not context:
+        user = logic.get_action(u'get_site_user')(
+            {u'model': model, u'ignore_auth': True}, {})
+        context = {u'model': model, u'session': model.Session,
+                   u'user': user[u'name']}
 
-    relationships = get_action('package_relationships_list')(context, {'id': id})
-
-    # from pprint import pprint
-    # pprint(relationships)
+    try:
+        relationships = get_action('package_relationships_list')(context, {'id': id})
+    except Exception as e:
+        log.error(str(e))
+        # whatever
+        # @TODO: why does it not throw an exception here?
 
     if relationships:
         try:
-
             for relationship in relationships:
-                package = get_action('package_show')(context, {'id': relationship['object']})
-                if package:
-                    relationship['title'] = package['title']
+                # log.debug(relationship)
+                if relationship['object']:
+                    # QDES: handle standard CKAN dataset to dataset relationships
+                    package = get_action('package_show')(context, {'id': relationship['object']})
+                    if package:
+                        relationship['title'] = package['title']
+                else:
+                    # QDES: handle CKAN dataset to EXTERNAL URI relationships
+                    relationship['title'] = relationship['comment']
         except Exception as e:
             print(str(e))
 
@@ -118,6 +134,58 @@ def get_lineage_notes(type, object):
     return ''
 
 
-def get_relationship_types():
-    types = PackageRelationship.types
+def get_relationship_types(field=None):
+    types = PackageRelationship.get_all_types()
     return types
+
+
+def quote_uri(uri):
+    from urllib.parse import quote
+    return quote(uri, safe='')
+
+
+def unquote_uri(uri):
+    from urllib.parse import unquote
+    return unquote(uri)
+
+
+def get_subject_package_relationship_objects(id):
+    try:
+        relationships = get_action('subject_package_relationship_objects')({}, {'id': id})
+    except Exception as e:
+        log.error(str(e))
+    relationship_dicts = []
+    if relationships:
+        try:
+            for relationship in relationships:
+                if not relationship.object_package_id:
+                    relationship_dicts.append(
+                        {'subject': id,
+                         'type': relationship.type,
+                         'object': None,
+                         'comment': relationship.comment}
+                    )
+                else:
+                    # Normal CKAN package to package relationship
+                    relationship_dicts.append(relationship.as_dict())
+
+            for relationship_dict in relationship_dicts:
+                if relationship_dict['object']:
+                    # QDES: handle standard CKAN dataset to dataset relationships
+                    site_user = get_action(u'get_site_user')({u'ignore_auth': True}, {})
+                    context = {u'user': site_user[u'name']}
+                    package = get_action('package_show')(context, {'id': relationship_dict['object']})
+                    if package:
+                        deleted = ' [Deleted]' if package.get('state') == 'deleted' else ''
+                        relationship_dict['title'] = package['title'] + deleted
+                else:
+                    # QDES: handle CKAN dataset to EXTERNAL URI relationships
+                    relationship_dict['title'] = relationship_dict['comment']
+        except Exception as e:
+            log.error(str(e))
+
+    return relationship_dicts
+
+
+def show_relationships_on_dataset_detail():
+    return toolkit.asbool(toolkit.config.get('ckanext.relationships.show_relationships_on_dataset_detail', True))
