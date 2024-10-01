@@ -51,7 +51,7 @@
     {% if relatable_datasets %}
 
         <form action="/dataset/{{ pkg_dict['name'] }}/relationships/create" method="post">
-
+            {{ h.csrf_input() }}
             This dataset <select name="type">
                 {% for option in h.get_relationship_types() %}
                     <option value="{{ option[0] }}">{{ option[0] }}</option>
@@ -77,7 +77,7 @@
     <h3>CKAN dataset to external URI relationship</h3>
 
     <form action="/dataset/{{ pkg_dict['name'] }}/relationships/create" method="post">
-
+        {{ h.csrf_input() }}
         This dataset <select name="type">
             {% for option in h.get_relationship_types() %}
                 <option value="{{ option[0] }}">{{ option[0] }}</option>

@@ -39,7 +39,7 @@ def package_relationship_create(context, data_dict):
     # to the subject package that they were updating (i.e. the package they
     # DO have `package_update` permission for.
     #
-    if roles_allowed and authz.auth_is_loggedin_user:
+    if roles_allowed and not toolkit.current_user.is_anonymous:
         # On new datasets the context.get('package') has not been set yet, so need to use package_show for the subject
         # data_dict['subject'] is always the ID of the package being created/updated
         context_package = toolkit.get_action('package_show')(context, {"id": data_dict['subject']})
